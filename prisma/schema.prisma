@@ -1,0 +1,51 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum EstadoLote{
+  DISPONIBLE
+  ENPAGO
+  PAGADO
+}
+
+enum FormaVenta{
+  CONTADO
+  CREDITO
+}
+
+
+model Urbanizacion{
+  @@map("urbanizaciones")
+  id            Int       @id @default(autoincrement())
+  nombre        String    @unique
+  ubicacion     String?
+  lotes         Lote[]
+}
+
+model Lote{
+  @@map("lotes")
+  id              Int       @id @default(autoincrement())
+  manzano         String
+  numero          Int
+  nombre          String    //Campo calculado en app, concatenacion manzano-numero
+  zona            String
+  superficieM2    Float
+  precioM2        Float
+  precioContado   Float     //Campo calculado en app, superficieM2 * 
+  estado          EstadoLote @default(DISPONIBLE)
+  formaVenta      FormaVenta?
+  urbanizacionId  Int
+  urbanizacion    Urbanizacion  @relation(fields: [urbanizacionId], references: [id])
+}
