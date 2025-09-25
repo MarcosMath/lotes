@@ -21,28 +21,53 @@ export async function createUrbanizacion(
   formData: FormData
 ): Promise<CreateUrbanizacionResult> {
   try {
+    // Datos obtendios del Formulario
     const rawData = {
       nombre: formData.get("nombre") as string,
       ubicacion: formData.get("ubicacion") as string,
     };
 
+    // Validación de los datos del Formulario contra el Esquema
+    // de creación de la urbanización
     const validationResult = createUrbanizacionSchema.safeParse(rawData);
 
-    validationResult.error.issues.forEach((issue) => {
-      const field = issue.path.join(".");
-      if (!errors[field]) {
-        errors[field] = [];
-      }
-      errors[field].push(issue.message);
+    // Tratamiento si la validación de datos falla
+    if (!validationResult.success) {
+      const errors: Record<string, string[]> = {};
+      // captura de los errores en el registro errors
+      validationResult.error.issues.forEach((issue) => {
+        const field = issue.path.join(".");
+        if (!errors[field]) {
+          errors[field] = [];
+        }
+        errors[field].push(issue.message);
+      });
+      // Retorno de los errores en el proceso de validación
+      return {
+        success: false,
+        message: "Error de validación en los datos del lote",
+        errors,
+      };
+    }
+
+    // Obtención de los datos validos resultado de la valizacion
+    // en el esquema
+    const validateData = validationResult.data;
+
+    // Crear la Urbanizacion con los datos validos
+    const nuevaUrbanizacion = await prisma.urbanizacion.create({
+      data: { nombre: validateData.nombre, ubicacion: validateData.ubicacion },
     });
 
-    return {
-      success: false,
-      message: "Error de validación en los datos del lote",
-      errors,
-    };
+    // Revalidar las Paginas Relacionadas
+    revalidatePath("/dashboard/urbanizaciones");
 
-    const validateData = validationResult.data;
+    // retornar exito en la validación adjuntando la urbanizacion creada
+    return {
+      success: true,
+      message: `Urbanización "${nuevaUrbanizacion.nombre}" creada exitosamente`,
+      data: nuevaUrbanizacion,
+    };
   } catch (error) {
     console.error("Error al crear lote:", error);
 
