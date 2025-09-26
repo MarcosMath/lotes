@@ -20,7 +20,14 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { CircleEllipsis, Pencil, Trash2, Eye, CirclePlus } from "lucide-react";
+import {
+  CircleEllipsis,
+  Pencil,
+  Trash2,
+  Eye,
+  CirclePlus,
+  Ghost,
+} from "lucide-react";
 
 export default async function UrbanizacionesPage() {
   const urbanizaciones = await prisma.urbanizacion.findMany();
@@ -59,7 +66,7 @@ export default async function UrbanizacionesPage() {
               <CirclePlus className="mx-auto mb-4 opacity-50" />
               No Hay Urbanizaciones Registradas
             </div>
-            <Link href={"dashboard/urbanizaciones/create"}>
+            <Link href={"/dashboard/urbanizaciones/create"}>
               <Button>Crear primera urbanización</Button>
             </Link>
           </div>
@@ -75,6 +82,45 @@ export default async function UrbanizacionesPage() {
                 <TableHead className="text-right">Acciones</TableHead>
               </TableRow>
             </TableHeader>
+            <TableBody>
+              {urbanizaciones.map((urbanizacion) => (
+                <TableRow>
+                  <TableCell>{urbanizacion.nombre}</TableCell>
+                  <TableCell>{urbanizacion.ubicacion}</TableCell>
+                  <TableCell>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant={"ghost"} size={"sm"}>
+                          <CircleEllipsis size={16} />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuLabel>Acciones</DropdownMenuLabel>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem asChild>
+                          <Link
+                            href={`/dashboard/urbanizaciones/${urbanizacion.id}/update`}
+                            className="flex items-center gap-2 cursor-pointer"
+                          >
+                            <Pencil size={16} />
+                            Editar
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                          <Link
+                            href={`/dashboard/urbanizaciones/${urbanizacion.id}/delete`}
+                            className="flex items-center gap-2 cursor-pointer"
+                          >
+                            <Pencil size={16} />
+                            Eliminar
+                          </Link>
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
           </Table>
         )}
       </div>
