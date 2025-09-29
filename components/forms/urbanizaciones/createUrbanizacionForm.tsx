@@ -46,7 +46,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { FileDiff, Loader2, UsbIcon } from "lucide-react";
-import { tr } from "zod/v4/locales";
+import { is, tr } from "zod/v4/locales";
 import { routerServerGlobal } from "next/dist/server/lib/router-utils/router-server-context";
 
 export default function CreateUrbanizacionForm() {
@@ -129,6 +129,47 @@ export default function CreateUrbanizacionForm() {
                 </FormItem>
               )}
             />
+            {/* Campo ubicacion*/}
+            <FormField
+              control={form.control}
+              name="ubicacion"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Ubicación</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="Ej: Trinidad norte, Km 8"
+                      {...field}
+                    ></Input>
+                  </FormControl>
+                  <FormDescription>
+                    Ingrese el la Ubiacación de la Urbanización
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            {/* Botones de acción  */}
+            <div className="flex justify-end space-x-2">
+              <Button
+                type="button"
+                variant={"outline"}
+                disabled={isLoading}
+                onClick={() => router.push("/dashboard/urbanizaciones")}
+              >
+                Cancelar
+              </Button>
+              <Button type={"submit"} disabled={isLoading}>
+                {isLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Creando...
+                  </>
+                ) : (
+                  "Crear Urbanización"
+                )}
+              </Button>
+            </div>
           </form>
         </Form>
       </CardContent>

@@ -87,7 +87,7 @@ export default async function UrbanizacionesPage() {
                 <TableRow>
                   <TableCell>{urbanizacion.nombre}</TableCell>
                   <TableCell>{urbanizacion.ubicacion}</TableCell>
-                  <TableCell>
+                  <TableCell className="text-right">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button variant={"ghost"} size={"sm"}>
