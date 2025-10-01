@@ -43,9 +43,11 @@ model Lote{
   zona            String
   superficieM2    Float
   precioM2        Float
-  precioContado   Float     //Campo calculado en app, superficieM2 * 
+  precioContado   Float     //Campo calculado en app, superficieM2 * precioM2
   estado          EstadoLote @default(DISPONIBLE)
   formaVenta      FormaVenta?
   urbanizacionId  Int
   urbanizacion    Urbanizacion  @relation(fields: [urbanizacionId], references: [id])
+
+  @@unique([manzano, numero, urbanizacionId], name: "unique_lote_por_urbanizacion")
 }

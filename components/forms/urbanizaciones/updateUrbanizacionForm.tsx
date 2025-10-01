@@ -1,17 +1,16 @@
 "use client";
 
-import { useFieldArray, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 
 // importar la accion del servidor y esquema para urbanizacion
-import { createUrbanizacion } from "@/app/actions/urbanizacion/createUrbanizacion";
+import { updateUrbanizacion } from "@/app/actions/urbanizacion/updateUrbanizacion";
 import {
-  createUrbanizacionSchema,
-  CreateUrbanizacionInput,
-  CreateUrbanizacionFormData,
+  updateUrbanizacionSchema,
+  UpdateUrbanizacionInput,
 } from "@/app/schemas/urbanizacion";
 
 //importar componentes IU
@@ -27,40 +26,39 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectSeparator,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
   Card,
-  CardAction,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
 
-export default function CreateUrbanizacionForm() {
+interface UpdateUrbanizacionFormProps {
+  urbanizacion: {
+    id: number;
+    nombre: string;
+    ubicacion: string | null;
+  };
+}
+
+export default function UpdateUrbanizacionForm({
+  urbanizacion,
+}: UpdateUrbanizacionFormProps) {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+
   // Configurar el formulario con react-hook-form
-  const form = useForm<CreateUrbanizacionFormData>({
-    resolver: zodResolver(createUrbanizacionSchema),
+  const form = useForm<UpdateUrbanizacionInput>({
+    resolver: zodResolver(updateUrbanizacionSchema),
     defaultValues: {
-      nombre: "",
-      ubicacion: "",
+      nombre: urbanizacion.nombre,
+      ubicacion: urbanizacion.ubicacion || "",
     },
   });
 
   // Manejar el envio del formulario
-  const onSubmit = async (values: CreateUrbanizacionFormData) => {
+  const onSubmit = async (values: UpdateUrbanizacionInput) => {
     setIsLoading(true);
 
     try {
@@ -68,15 +66,15 @@ export default function CreateUrbanizacionForm() {
 
       // Crear un FormData para enviar a la acción del Servidor
       const formData = new FormData();
-      formData.append("nombre", values.nombre);
-      formData.append("ubicacion", values.ubicacion ?? "");
+      formData.append("id", urbanizacion.id.toString());
+      if (values.nombre) formData.append("nombre", values.nombre);
+      if (values.ubicacion) formData.append("ubicacion", values.ubicacion);
 
       //Llamar a la acción del servidor
-      const result = await createUrbanizacion(formData);
+      const result = await updateUrbanizacion(formData);
 
       if (result.success) {
         toast.success(result.message);
-        form.reset();
         router.push("/dashboard/urbanizaciones");
       } else {
         toast.error(result.message);
@@ -84,7 +82,7 @@ export default function CreateUrbanizacionForm() {
         // mostrar errores especificos del formulario
         if (result.errors) {
           Object.entries(result.errors).forEach(([field, messages]) => {
-            form.setError(field as keyof CreateUrbanizacionFormData, {
+            form.setError(field as keyof UpdateUrbanizacionInput, {
               type: "server",
               message: messages.join(","),
             });
@@ -92,7 +90,7 @@ export default function CreateUrbanizacionForm() {
         }
       }
     } catch (error) {
-      console.error("Error al crear la Urbanización :", error);
+      console.error("Error al actualizar la Urbanización :", error);
       toast.error("Error Inesperado intentalo de nuevo.");
     } finally {
       setIsLoading(false);
@@ -102,9 +100,9 @@ export default function CreateUrbanizacionForm() {
   return (
     <Card className="w-full max-w-2xl mx-auto">
       <CardHeader>
-        <CardTitle>Registrar nueva Urbanización</CardTitle>
+        <CardTitle>Editar Urbanización</CardTitle>
         <CardDescription>
-          Complete la información de la urbanización
+          Actualice la información de la urbanización
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -161,10 +159,10 @@ export default function CreateUrbanizacionForm() {
                 {isLoading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Creando...
+                    Actualizando...
                   </>
                 ) : (
-                  "Crear Urbanización"
+                  "Actualizar Urbanización"
                 )}
               </Button>
             </div>

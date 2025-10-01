@@ -7,8 +7,6 @@ import {
   createUrbanizacionSchema,
   type CreateUrbanizacionInput,
 } from "@/app/schemas/urbanizacion";
-import { UsbIcon } from "lucide-react";
-import { any } from "zod";
 
 type CreateUrbanizacionResult = {
   success: boolean;
@@ -45,7 +43,7 @@ export async function createUrbanizacion(
       // Retorno de los errores en el proceso de validación
       return {
         success: false,
-        message: "Error de validación en los datos del lote",
+        message: "Error de validación en los datos de la urbanización",
         errors,
       };
     }
@@ -69,14 +67,14 @@ export async function createUrbanizacion(
       data: nuevaUrbanizacion,
     };
   } catch (error) {
-    console.error("Error al crear lote:", error);
+    console.error("Error al crear urbanización:", error);
 
     // Manejar errores específicos de Prisma
     if (error instanceof Error) {
       if (error.message.includes("Unique constraint")) {
         return {
           success: false,
-          message: "Ya existe un lote con ese nombre",
+          message: "Ya existe una urbanización con ese nombre",
           errors: { nombre: ["Este nombre ya está en uso"] },
         };
       }
@@ -84,8 +82,8 @@ export async function createUrbanizacion(
       if (error.message.includes("Foreign key constraint")) {
         return {
           success: false,
-          message: "La urbanización seleccionada no es válida",
-          errors: { urbanizacionId: ["Urbanización no válida"] },
+          message: "Error de relación con la base de datos",
+          errors: { general: ["Error de referencia"] },
         };
       }
     }

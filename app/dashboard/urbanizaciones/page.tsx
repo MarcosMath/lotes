@@ -84,7 +84,7 @@ export default async function UrbanizacionesPage() {
             </TableHeader>
             <TableBody>
               {urbanizaciones.map((urbanizacion) => (
-                <TableRow>
+                <TableRow key={urbanizacion.id}>
                   <TableCell>{urbanizacion.nombre}</TableCell>
                   <TableCell>{urbanizacion.ubicacion}</TableCell>
                   <TableCell className="text-right">
@@ -111,7 +111,7 @@ export default async function UrbanizacionesPage() {
                             href={`/dashboard/urbanizaciones/${urbanizacion.id}/delete`}
                             className="flex items-center gap-2 cursor-pointer"
                           >
-                            <Pencil size={16} />
+                            <Trash2 size={16} />
                             Eliminar
                           </Link>
                         </DropdownMenuItem>
