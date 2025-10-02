@@ -11,7 +11,15 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { ArrowLeft, Pencil, Trash2, MapPin } from "lucide-react";
+import { ArrowLeft, Pencil, Trash2, MapPin, CreditCard } from "lucide-react";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -29,6 +37,11 @@ export default async function LoteDetailPage({ params }: PageProps) {
     where: { id: loteId },
     include: {
       urbanizacion: true,
+      financiamientos: {
+        include: {
+          planFinanciamiento: true,
+        },
+      },
     },
   });
 
@@ -249,6 +262,68 @@ export default async function LoteDetailPage({ params }: PageProps) {
             </CardContent>
           </Card>
         </div>
+      </div>
+
+      {/* Sección de Financiamientos */}
+      <div className="mt-6">
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="flex items-center gap-2">
+                  <CreditCard className="h-5 w-5" />
+                  Planes de Financiamiento Disponibles
+                </CardTitle>
+                <CardDescription>
+                  Opciones de financiamiento configuradas para este lote
+                </CardDescription>
+              </div>
+              <Link href={`/dashboard/financiamientos/create?loteId=${lote.id}`}>
+                <Button size="sm">Agregar Plan</Button>
+              </Link>
+            </div>
+          </CardHeader>
+          <CardContent>
+            {lote.financiamientos.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                No hay planes de financiamiento configurados para este lote
+              </div>
+            ) : (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Plan</TableHead>
+                    <TableHead>Cuotas</TableHead>
+                    <TableHead>Cuota Inicial</TableHead>
+                    <TableHead>Cuota Mensual</TableHead>
+                    <TableHead>Precio Total</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {lote.financiamientos.map((financiamiento) => (
+                    <TableRow key={financiamiento.id}>
+                      <TableCell className="font-medium">
+                        {financiamiento.planFinanciamiento.nombre}
+                      </TableCell>
+                      <TableCell>
+                        {financiamiento.planFinanciamiento.cantidadCuotas} meses
+                      </TableCell>
+                      <TableCell>
+                        Bs. {financiamiento.cuotaInicial.toFixed(2)}
+                      </TableCell>
+                      <TableCell className="font-semibold">
+                        Bs. {financiamiento.cuotaMensual.toFixed(2)}
+                      </TableCell>
+                      <TableCell className="font-bold text-primary">
+                        Bs. {financiamiento.precioTotalCredito.toFixed(2)}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            )}
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

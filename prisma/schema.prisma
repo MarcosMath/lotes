@@ -25,6 +25,11 @@ enum FormaVenta{
   CREDITO
 }
 
+enum TipoCuotaInicial{
+  PORCENTAJE
+  MONTO_FIJO
+}
+
 
 model Urbanizacion{
   @@map("urbanizaciones")
@@ -48,6 +53,39 @@ model Lote{
   formaVenta      FormaVenta?
   urbanizacionId  Int
   urbanizacion    Urbanizacion  @relation(fields: [urbanizacionId], references: [id])
+  financiamientos FinanciamientoLote[]
 
   @@unique([manzano, numero, urbanizacionId], name: "unique_lote_por_urbanizacion")
+}
+
+model PlanFinanciamiento{
+  @@map("planes_financiamiento")
+  id                    Int                   @id @default(autoincrement())
+  nombre                String                @unique
+  porcentajeAnual       Float                 // % interés anual
+  cantidadCuotas        Int                   // 12, 24, 36, etc.
+  tipoCuotaInicial      TipoCuotaInicial      // PORCENTAJE o MONTO_FIJO
+  valorCuotaInicial     Float                 // Si es PORCENTAJE: 20 (= 20%), si es MONTO_FIJO: 5000
+  activo                Boolean               @default(true)
+  financiamientos       FinanciamientoLote[]
+  createdAt             DateTime              @default(now())
+  updatedAt             DateTime              @updatedAt
+}
+
+model FinanciamientoLote{
+  @@map("financiamientos_lote")
+  id                    Int                   @id @default(autoincrement())
+  loteId                Int
+  lote                  Lote                  @relation(fields: [loteId], references: [id], onDelete: Cascade)
+  planFinanciamientoId  Int
+  planFinanciamiento    PlanFinanciamiento    @relation(fields: [planFinanciamientoId], references: [id])
+  cuotaInicial          Float                 // Calculado según el tipo
+  saldoFinanciar        Float                 // precioContado - cuotaInicial
+  interesTotal          Float                 // Para transparencia
+  cuotaMensual          Float                 // Calculado con la fórmula
+  precioTotalCredito    Float                 // cuotaMensual * cantidadCuotas + cuotaInicial
+  createdAt             DateTime              @default(now())
+  updatedAt             DateTime              @updatedAt
+
+  @@unique([loteId, planFinanciamientoId], name: "unique_financiamiento_lote_plan")
 }

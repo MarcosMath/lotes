@@ -6,6 +6,7 @@ import {
   Settings,
   MapPinned,
   Map,
+  ClipboardPen,
 } from "lucide-react";
 
 import {
@@ -18,6 +19,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { title } from "process";
 
 // Menu items.
 const items = [
@@ -30,6 +32,11 @@ const items = [
     title: "Lotes",
     url: "/dashboard/lotes",
     icon: Map,
+  },
+  {
+    title: "Planes de Financiamiento",
+    url: "/dashboard/planes-financiamiento",
+    icon: ClipboardPen,
   },
   {
     title: "Calendar",
